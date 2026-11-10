@@ -1,0 +1,11 @@
+Model Information:
+* title:	Fpv Racing Drone Quadcopter
+* source:	https://sketchfab.com/3d-models/fpv-racing-drone-quadcopter-fa8b1ca2695e4022a9b4c70401f04b05
+* author:	eagleanurag (https://sketchfab.com/eagleanurag)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Fpv Racing Drone Quadcopter" (https://sketchfab.com/3d-models/fpv-racing-drone-quadcopter-fa8b1ca2695e4022a9b4c70401f04b05) by eagleanurag (https://sketchfab.com/eagleanurag) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

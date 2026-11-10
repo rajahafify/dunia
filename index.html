@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ripline FPV</title>
+<meta name="description" content="Multiplayer FPV drone racing in the browser. Acro mode, Betaflight rates, gamepad and radio support.">
+<link rel="stylesheet" href="/src/style.css">
+</head>
+<body data-device="keyboard">
+<canvas id="view"></canvas>
+
+<!-- flight OSD -->
+<div id="osd" class="hidden">
+  <div class="osd tl"><span id="o-volt">25.2V</span><span id="o-mah">0 mAh</span></div>
+  <div class="osd tc"><div id="o-timer">0:00.000</div><div id="o-lap">LAP 1/3</div></div>
+  <div class="osd tr"><span id="o-mode">ACRO</span><span id="o-tilt">CAM 30°</span></div>
+  <div class="osd ml"><span id="o-speed">0</span><small>KM/H</small></div>
+  <div class="osd mr"><span id="o-alt">0.0</span><small>M</small></div>
+  <div class="osd bl"><span id="o-thr">THR 0%</span><span id="o-last"></span><span id="o-best"></span></div>
+  <div id="crosshair"></div>
+  <div id="gate-arrow"><svg viewBox="-12 -12 24 24" width="34" height="34"><path d="M0-10L8 6H-8z" fill="#38ff7a" stroke="#06140b" stroke-width="1.5"/></svg><span id="gate-dist"></span></div>
+  <div id="banner"></div>
+  <div id="sticks">
+    <div class="stickbox"><i id="st-l"></i></div>
+    <div class="stickbox"><i id="st-r"></i></div>
+  </div>
+  <ol id="standings"></ol>
+  <div id="hints">
+    <span><b data-glyph="reset"></b> Reset to gate</span>
+    <span><b data-glyph="camera"></b> Camera</span>
+    <span><b data-glyph="tiltDown"></b><b data-glyph="tiltUp"></b> Cam tilt</span>
+    <span id="hint-ready"><b data-glyph="confirm"></b> <em id="hint-ready-text">Ready up</em></span>
+    <span><b data-glyph="pause"></b> Menu</span>
+  </div>
+</div>
+
+<!-- room panel, shown while flying in a room -->
+<aside id="roompanel" class="hidden">
+  <header><span id="rp-track">Open Field</span><button id="rp-code" title="Copy invite link"></button></header>
+  <ul id="rp-pilots"></ul>
+  <div id="rp-host" class="hidden">
+    <select id="rp-trackpick" aria-label="Track"></select>
+    <button id="rp-start" class="small">Start now</button>
+  </div>
+  <p id="rp-status"></p>
+</aside>
+
+<!-- home -->
+<section id="home" class="screen active">
+  <div class="card hero">
+    <h1>RIPLINE <span>FPV</span></h1>
+    <p class="tag">Drone racing with real acro physics. Up to eight pilots a heat.</p>
+
+    <div id="account">
+      <div id="signed-out">
+        <div id="gbtn"></div>
+        <div id="guest-row">
+          <input id="guest-name" maxlength="18" placeholder="Pilot name" autocomplete="nickname">
+          <button id="guest-go" class="small">Fly as guest</button>
+        </div>
+        <p id="auth-note" class="note"></p>
+      </div>
+      <div id="signed-in" class="hidden">
+        <img id="me-pic" alt="" referrerpolicy="no-referrer"><span id="me-name"></span>
+        <button id="signout" class="link">Sign out</button>
+      </div>
+    </div>
+
+    <label class="row">Track
+      <select id="track-pick"></select>
+    </label>
+    <p id="track-blurb" class="note"></p>
+
+    <div class="buttons">
+      <button id="btn-quick" class="primary">Quick race</button>
+      <button id="btn-solo">Time trial</button>
+      <button id="btn-private">Private room</button>
+      <button id="btn-settings">Settings</button>
+    </div>
+    <div class="joinrow">
+      <input id="join-code" maxlength="8" placeholder="Room code" autocapitalize="characters">
+      <button id="btn-join" class="small">Join</button>
+    </div>
+    <p id="home-msg" class="note err"></p>
+    <p class="device">Controls: <strong data-device-name>Keyboard</strong> <span id="device-detail"></span></p>
+  </div>
+  <div class="card side">
+    <h2>Best laps <small id="lb-track"></small></h2>
+    <ol id="leaderboard"><li class="note">No laps yet.</li></ol>
+    <h2>Controls</h2>
+    <table class="controls">
+      <tr><td><b data-glyph="stickL"></b></td><td id="ctl-left">Throttle and yaw</td></tr>
+      <tr><td><b data-glyph="stickR"></b></td><td id="ctl-right">Pitch and roll</td></tr>
+      <tr><td><b data-glyph="reset"></b></td><td>Reset to the last gate</td></tr>
+      <tr><td><b data-glyph="camera"></b></td><td>FPV or chase camera</td></tr>
+      <tr><td><b data-glyph="tiltDown"></b><b data-glyph="tiltUp"></b></td><td>Camera tilt</td></tr>
+      <tr><td><b data-glyph="confirm"></b></td><td>Ready up</td></tr>
+      <tr><td><b data-glyph="pause"></b></td><td>Menu</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- pause -->
+<section id="pause" class="screen">
+  <div class="card narrow">
+    <h2>Menu</h2>
+    <div class="buttons col">
+      <button id="p-resume" class="primary">Resume</button>
+      <button id="p-restart">Restart</button>
+      <button id="p-settings">Settings</button>
+      <button id="p-leave">Leave</button>
+    </div>
+  </div>
+</section>
+
+<!-- results -->
+<section id="results" class="screen">
+  <div class="card">
+    <h2>Results <small id="res-track"></small></h2>
+    <table id="res-table"></table>
+    <p class="note">Next heat opens in a few seconds.</p>
+  </div>
+</section>
+
+<!-- settings -->
+<section id="settings" class="screen">
+  <div class="card wide">
+    <h2>Settings</h2>
+    <div class="grid">
+      <fieldset>
+        <legend>Flight</legend>
+        <label class="row">Mode
+          <select id="s-flightMode"><option value="acro">Acro (rate mode)</option><option value="angle">Angle (self level)</option></select></label>
+        <label class="row">Throttle stick
+          <select id="s-throttleMode">
+            <option value="hover">Centre is hover (sprung sticks)</option>
+            <option value="full">Full travel, like a radio</option>
+            <option value="upper">Upper half only</option>
+            <option value="trigger">Right trigger</option>
+          </select></label>
+        <label class="row">Stick mode
+          <select id="s-stickMode"><option value="1">Mode 1</option><option value="2">Mode 2</option><option value="3">Mode 3</option><option value="4">Mode 4</option></select></label>
+        <label class="row">Deadband <output></output><input type="range" id="s-deadband" min="0" max="0.2" step="0.01"></label>
+        <label class="row">Camera tilt <output></output><input type="range" id="s-camTilt" min="0" max="60" step="1"></label>
+        <label class="row">Field of view <output></output><input type="range" id="s-fov" min="70" max="125" step="1"></label>
+      </fieldset>
+      <fieldset>
+        <legend>Rates (Betaflight Actual)</legend>
+        <table class="rates">
+          <tr><th></th><th>Centre</th><th>Max °/s</th><th>Expo</th></tr>
+          <tr><td>Roll</td><td><input type="number" id="r-roll-center" min="10" max="400"></td><td><input type="number" id="r-roll-max" min="100" max="1500"></td><td><input type="number" id="r-roll-expo" min="0" max="1" step="0.05"></td></tr>
+          <tr><td>Pitch</td><td><input type="number" id="r-pitch-center" min="10" max="400"></td><td><input type="number" id="r-pitch-max" min="100" max="1500"></td><td><input type="number" id="r-pitch-expo" min="0" max="1" step="0.05"></td></tr>
+          <tr><td>Yaw</td><td><input type="number" id="r-yaw-center" min="10" max="400"></td><td><input type="number" id="r-yaw-max" min="100" max="1500"></td><td><input type="number" id="r-yaw-expo" min="0" max="1" step="0.05"></td></tr>
+        </table>
+        <canvas id="rate-curve" width="300" height="120"></canvas>
+      </fieldset>
+      <fieldset>
+        <legend>Video and sound</legend>
+        <label class="row">Lens effect <input type="checkbox" id="s-lens"></label>
+        <label class="row">Ghost in time trial <input type="checkbox" id="s-ghost"></label>
+        <label class="row">Quality
+          <select id="s-quality"><option value="high">High</option><option value="low">Low (reload to apply)</option></select></label>
+        <label class="row">Volume <output></output><input type="range" id="s-volume" min="0" max="1" step="0.05"></label>
+      </fieldset>
+      <fieldset>
+        <legend>Controller</legend>
+        <p class="note">Active: <strong data-device-name>Keyboard</strong></p>
+        <p class="note" id="pad-id"></p>
+        <div id="radio-setup">
+          <p class="note">USB radios show up with their own channel order. Run this once to map the sticks.</p>
+          <button id="radio-cal" class="small">Map radio sticks</button>
+          <p id="radio-msg" class="note"></p>
+        </div>
+        <div class="axes" id="axes"></div>
+      </fieldset>
+    </div>
+    <div class="buttons">
+      <button id="s-done" class="primary">Done</button>
+      <button id="s-reset">Reset to defaults</button>
+    </div>
+  </div>
+</section>
+
+<div id="loading">Loading the field…</div>
+<footer id="credit">Quad model: "Fpv Racing Drone Quadcopter" by eagleanurag, CC BY 4.0</footer>
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>

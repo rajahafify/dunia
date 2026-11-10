@@ -1,0 +1,27 @@
+name = "ripline"
+main = "worker/index.js"
+compatibility_date = "2025-09-01"
+
+[assets]
+directory = "./dist"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+run_worker_first = ["/api/*"]
+
+[vars]
+# Google OAuth client ID (public value). Leave empty to run with guest pilots only.
+GOOGLE_CLIENT_ID = ""
+# "true" lets people fly without signing in. Set to "false" to require Google sign-in.
+ALLOW_GUESTS = "true"
+
+[[durable_objects.bindings]]
+name = "ROOM"
+class_name = "Room"
+
+[[durable_objects.bindings]]
+name = "HUB"
+class_name = "Hub"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Room", "Hub"]

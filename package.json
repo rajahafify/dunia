@@ -1,0 +1,27 @@
+{
+  "name": "ripline",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "node tests/physics.test.mjs && node tests/auth.test.mjs",
+    "dev": "vite",
+    "server": "wrangler dev --port 8787",
+    "build": "vite build",
+    "preview": "vite build && wrangler dev --port 8787",
+    "deploy": "vite build && wrangler deploy"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "jose": "^6.2.17",
+    "three": "^0.170.0"
+  },
+  "devDependencies": {
+    "@gltf-transform/cli": "^4.5.1",
+    "vite": "^8.3.7",
+    "wrangler": "^4.160.0"
+  },
+  "type": "module"
+}
