@@ -162,7 +162,7 @@ export class World {
     const grp = this.trackGroup = new THREE.Group();
     this.track = track;
     this.gates = [];
-    const T = 0.12; // bar thickness
+    const T = 0.16; // bar thickness
     const frames = resolveGates(track);
 
     for (const f of frames) {
